@@ -9,5 +9,4 @@ public class FortuneApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(FortuneApiApplication.class, args);
 	}
-
 }
