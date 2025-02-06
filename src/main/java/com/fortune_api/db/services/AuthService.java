@@ -2,6 +2,7 @@ package com.fortune_api.db.services;
 
 import com.fortune_api.controller.AuthController;
 import com.fortune_api.db.entities.UserEntity;
+import com.fortune_api.db.entities.enums.IdentityDocument;
 import com.fortune_api.db.repositories.UserRepository;
 import com.fortune_api.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,23 +16,40 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    public UserEntity login(final String dni_nie, final byte [] password) {
-        if (AuthController.isDocumentDni(dni_nie)) {
-            return userRepository.findUserByDniAndPassword(dni_nie, password);
+    public UserEntity findUserByIdentityDocument(final String identityDocument) {
+        if (AuthController.documentType(identityDocument) != null && AuthController.documentType(identityDocument) == IdentityDocument.DNI) {
+            return userRepository.findUserByDniAndPassword(identityDocument);
+        } else if (AuthController.documentType(identityDocument) != null) {
+            return userRepository.findUserByNieAndPassword(identityDocument);
         } else {
-            return userRepository.findUserByNieAndPassword(dni_nie, password);
+            Log.getInstance().writeLog("AuthService | AuthController.documentType(String) returned null");
+            return null;
         }
     }
 
-    public UserEntity register(final String dni, final String nie, final String email, final String salt, byte [] password) {
+    public UserEntity register(final String dni, final String nie, final String email, final String salt, final String password) {
         return userRepository.save(new UserEntity(dni, nie, email, salt, password));
     }
 
-    public String findSaltByDni(final String dni) {
-        return userRepository.findSaltByDni(dni);
+    public String findHashedPasswordByIdentityDocument(final String identityDocument) {
+        if (AuthController.documentType(identityDocument) != null && AuthController.documentType(identityDocument) == IdentityDocument.DNI) {
+            return userRepository.findHashedPasswordByDni(identityDocument);
+        } else if (AuthController.documentType(identityDocument) != null) {
+            return userRepository.findHashedPasswordByNie(identityDocument);
+        } else {
+            Log.getInstance().writeLog("AuthService | AuthController.documentType(String) returned null");
+            return null;
+        }
     }
 
-    public String findSaltByNie(final String nie) {
-        return userRepository.findSaltByNie(nie);
+    public String findSaltByIdentityDocument(final String identityDocument) {
+        if (AuthController.documentType(identityDocument) != null && AuthController.documentType(identityDocument) == IdentityDocument.DNI) {
+            return userRepository.findSaltByDni(identityDocument);
+        } else if (AuthController.documentType(identityDocument) != null) {
+            return userRepository.findSaltByNie(identityDocument);
+        } else {
+            Log.getInstance().writeLog("AuthService | AuthController.documentType(String) returned null");
+            return null;
+        }
     }
 }

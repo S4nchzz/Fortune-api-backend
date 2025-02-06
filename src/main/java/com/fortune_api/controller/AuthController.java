@@ -1,10 +1,12 @@
 package com.fortune_api.controller;
 
 import com.fortune_api.db.entities.UserEntity;
+import com.fortune_api.db.entities.enums.IdentityDocument;
 import com.fortune_api.db.services.AuthService;
-import com.fortune_api.security.PasswordComplexity;
+import com.fortune_api.log.Log;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,81 +16,88 @@ public class AuthController {
     private AuthService userService;
 
     @GetMapping("/login")
-    public String login(@RequestParam(name = "dni_nie") final String dni_nie, @RequestParam(name = "password") final String password) {
-        String salt = null;
-        if (isDocumentDni(dni_nie)) {
-            salt = userService.findSaltByDni(dni_nie);
-        } else {
-            salt = userService.findSaltByNie(dni_nie);
+    public String login(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "password") final String password) {
+        final String hashedPassword = userService.findHashedPasswordByIdentityDocument(identityDocument);
+        if (hashedPassword == null) {
+            Log.getInstance().writeLog("AuthController | hashedPassword is null");
+            return null;
+        }
+
+        final boolean isPasswordCorrect = BCrypt.checkpw(password, hashedPassword);
+
+        if (!isPasswordCorrect) {
+            return null;
         }
 
         JSONObject loginResponse = new JSONObject();
-
-        if (salt != null) {
-            final String salt_password = salt.concat(password);
-            byte [] hashedPassword = PasswordComplexity.sha256(salt_password);
-
-            UserEntity user = userService.login(dni_nie, hashedPassword);
-
-            if (user != null) {
-                if (user.getDni() != null) {
-                    loginResponse.put("dni_nie", user.getDni());
-                } else {
-                    loginResponse.put("dni_nie", user.getNie());
-                }
-                return loginResponse
-                        .put("id", user.getId())
-                        .put("email", user.getEmail())
-                        .put("digital_sign", user.getDigital_sign()).toString();
+        UserEntity user = userService.findUserByIdentityDocument(identityDocument);
+        if (user != null) {
+            if (user.getDni() != null) {
+                loginResponse.put("identityDocument", user.getDni());
+            } else if (user.getNie() != null) {
+                loginResponse.put("identityDocument", user.getNie());
+            } else {
+                Log.getInstance().writeLog("AuthController | Dni and Nie are both null on findUser() data returned");
             }
-        }
 
+            return loginResponse
+                    .put("id", user.getId())
+                    .put("email", user.getEmail())
+                    .put("digital_sign", user.getDigital_sign()).toString();
+        }
 
         return null;
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam(name = "dni_nie") final String dni_nie, @RequestParam(name = "email") final String email, @RequestParam(name = "password") final String password) {
-        final String salt = PasswordComplexity.saltGenerator();
-        final String salt_password = salt + password;
+    public String register(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "email") final String email, @RequestParam(name = "password") final String password) {
+        final String salt = BCrypt.gensalt();
+        final String passwordHashed = BCrypt.hashpw(password, salt);
 
         String dni = null;
         String nie = null;
 
-        if (isDocumentDni(dni_nie)) {
-            dni = dni_nie;
+        if (documentType(identityDocument) != null && documentType(identityDocument) == IdentityDocument.DNI) {
+            dni = identityDocument;
+        } else if (documentType(identityDocument) != null) {
+            nie = identityDocument;
         } else {
-            nie = dni_nie;
+            Log.getInstance().writeLog("AuthController | documentType(String) returned null");
+            return null;
         }
 
-        UserEntity user = userService.register(dni, nie, email, salt, PasswordComplexity.sha256(salt_password));
+        UserEntity user = userService.register(dni, nie, email, salt, passwordHashed);
+
+        if (user == null) {
+            return null;
+        }
 
         JSONObject registerResponse = new JSONObject();
+        registerResponse
+                .put("id", user.getId())
+                .put("email", user.getEmail())
+                .put("digital_sign", user.getDigital_sign());
 
-        if (user != null) {
-            if (isDocumentDni(dni_nie)) {
-                registerResponse.put("dni", user.getDni());
-            } else {
-                registerResponse.put("nie", user.getNie());
-            }
+        if (documentType(identityDocument) != null && documentType(identityDocument) == IdentityDocument.DNI) {
+            registerResponse.put("identityDocument", user.getDni());
+        } else if (documentType(identityDocument) != null) {
+            registerResponse.put("identityDocument", user.getNie());
+        } else {
+            Log.getInstance().writeLog("AuthController | documentType(String) returned null");
+            return null;
+        }
 
-            return registerResponse
-                    .put("id", user.getId())
-                    .put("email", user.getEmail())
-                    .put("digital_sign", user.getDigital_sign()).toString();
-            }
-
-        return null;
+        return registerResponse.toString();
     }
 
-    public static boolean isDocumentDni(final String dni_nie) {
-        if (dni_nie == null || dni_nie.isEmpty()) {
-            return false;
+    public static IdentityDocument documentType(final String identityDocument) {
+        if (identityDocument == null || identityDocument.isEmpty()) {
+            return null;
         }
 
         int letterCount = 0;
         int nummberCount = 0;
-        for (char c : dni_nie.toCharArray()) {
+        for (char c : identityDocument.toCharArray()) {
             if (c >= 65 && c <= 90) {
                 letterCount++;
             }
@@ -98,6 +107,6 @@ public class AuthController {
             }
         }
 
-        return Character.isAlphabetic(dni_nie.charAt(dni_nie.length() - 1)) && letterCount == 1 && nummberCount == 8 && dni_nie.length() == 9;
+        return Character.isAlphabetic(identityDocument.charAt(identityDocument.length() - 1)) && letterCount == 1 && nummberCount == 8 && identityDocument.length() == 9 ? IdentityDocument.DNI : IdentityDocument.NIE;
     }
 }

@@ -14,7 +14,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "dni", nullable = true, unique = true)
+    @Column(name = "dni", unique = true)
     private String dni;
 
     @Column(name = "nie", nullable = true, unique = true)
@@ -27,12 +27,12 @@ public class UserEntity {
     private String salt;
 
     @Column(name = "password", nullable = false)
-    private byte [] password;
+    private String password;
 
-    @Column(name = "digital_sign", nullable = true)
+    @Column(name = "digital_sign")
     private Integer digital_sign;
 
-    public UserEntity(final String dni, final String nie, final String email, final String salt, final byte [] password) {
+    public UserEntity(final String dni, final String nie, final String email, final String salt, final String password) {
         this.dni = dni;
         this.nie = nie;
         this.email = email;
