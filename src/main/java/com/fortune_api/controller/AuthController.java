@@ -1,8 +1,10 @@
 package com.fortune_api.controller;
 
 import com.fortune_api.db.entities.UserEntity;
+import com.fortune_api.db.entities.UserProfileEntity;
 import com.fortune_api.db.entities.enums.IdentityDocument;
 import com.fortune_api.db.services.AuthService;
+import com.fortune_api.db.services.UserProfileService;
 import com.fortune_api.log.Log;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     @Autowired
     private AuthService userService;
+
+    @Autowired
+    private UserProfileService userProfileService;
 
     @GetMapping("/login")
     public String login(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "password") final String password) {
@@ -31,7 +36,9 @@ public class AuthController {
 
         JSONObject loginResponse = new JSONObject();
         UserEntity user = userService.findUserByIdentityDocument(identityDocument);
+
         if (user != null) {
+            
             if (user.getDni() != null) {
                 loginResponse.put("identityDocument", user.getDni());
             } else if (user.getNie() != null) {
@@ -88,6 +95,11 @@ public class AuthController {
         }
 
         return registerResponse.toString();
+    }
+
+    @PostMapping("/setPin")
+    public String configurePin(@RequestParam(name = "pin") final String pin) {
+        return null;
     }
 
     public static IdentityDocument documentType(final String identityDocument) {

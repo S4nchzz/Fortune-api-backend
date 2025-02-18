@@ -41,15 +41,4 @@ public class AuthService {
             return null;
         }
     }
-
-    public String findSaltByIdentityDocument(final String identityDocument) {
-        if (AuthController.documentType(identityDocument) != null && AuthController.documentType(identityDocument) == IdentityDocument.DNI) {
-            return userRepository.findSaltByDni(identityDocument);
-        } else if (AuthController.documentType(identityDocument) != null) {
-            return userRepository.findSaltByNie(identityDocument);
-        } else {
-            Log.getInstance().writeLog("AuthService | AuthController.documentType(String) returned null");
-            return null;
-        }
-    }
 }
