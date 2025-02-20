@@ -1,10 +1,9 @@
 package com.fortune_api.controller;
 
 import com.fortune_api.db.entities.UserEntity;
-import com.fortune_api.db.entities.UserProfileEntity;
 import com.fortune_api.db.entities.enums.IdentityDocument;
 import com.fortune_api.db.services.AuthService;
-import com.fortune_api.db.services.UserProfileService;
+import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.log.Log;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +12,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
-public class AuthController {
+public class UserController {
     @Autowired
     private AuthService userService;
 
     @Autowired
-    private UserProfileService userProfileService;
+    private UProfileService userProfileService;
 
     @GetMapping("/login")
     public String login(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "password") final String password) {
@@ -81,7 +80,7 @@ public class AuthController {
 
         JSONObject registerResponse = new JSONObject();
         registerResponse
-                .put("id", user.getId())
+                .put("user_id", user.getId())
                 .put("email", user.getEmail())
                 .put("digital_sign", user.getDigital_sign());
 
@@ -97,9 +96,31 @@ public class AuthController {
         return registerResponse.toString();
     }
 
-    @PostMapping("/setPin")
-    public String configurePin(@RequestParam(name = "pin") final String pin) {
-        return null;
+    @PostMapping("/createDigitalSign")
+    public String createDigitalSign(@RequestParam(name = "user_id") final long user_id, @RequestParam(name = "digital_sign") final int pin) {
+        UserEntity user = userService.findUserById(user_id);
+
+        if (user.getDigital_sign() != null) {
+            return ""; // For some reason the user has already a digital sign
+        }
+
+        JSONObject createDigitalSign = new JSONObject();
+
+        user.setDigital_sign(pin);
+        userService.save(user);
+
+        if (user.getDni() != null) {
+            createDigitalSign.put("identityDocument", user.getDni());
+        } else if (user.getNie() != null) {
+            createDigitalSign.put("identityDocument", user.getNie());
+        } else {
+            Log.getInstance().writeLog("AuthController | Dni and Nie are both null on findUser() data returned");
+        }
+
+        return createDigitalSign
+                .put("user_id", user.getId())
+                .put("email", user.getEmail())
+                .put("digital_sign", user.getDigital_sign()).toString();
     }
 
     public static IdentityDocument documentType(final String identityDocument) {

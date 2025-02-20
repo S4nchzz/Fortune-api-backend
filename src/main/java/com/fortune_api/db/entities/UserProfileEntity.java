@@ -31,16 +31,17 @@ public class UserProfileEntity {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "telf")
-    private String telf;
+    @Column(name = "phone")
+    private String phone;
 
     @Column(name = "pfp")
     private byte [] pfp;
 
-    public UserProfileEntity(UserEntity user_id, String name, String address, String telf) {
+    public UserProfileEntity(UserEntity user_id, String name, String address, String phone, Boolean online) {
         this.user = user_id;
         this.name = name;
         this.address = address;
-        this.telf = telf;
+        this.phone = phone;
+        this.online = online;
     }
 }
