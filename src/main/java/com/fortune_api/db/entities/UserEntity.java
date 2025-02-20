@@ -32,11 +32,15 @@ public class UserEntity {
     @Column(name = "digital_sign")
     private Integer digital_sign;
 
+    @Column(name = "is_profile_created")
+    private boolean isProfileCreated;
+
     public UserEntity(final String dni, final String nie, final String email, final String salt, final String password) {
         this.dni = dni;
         this.nie = nie;
         this.email = email;
         this.salt = salt;
         this.password = password;
+        this.isProfileCreated = false;
     }
 }

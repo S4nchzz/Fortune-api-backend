@@ -11,8 +11,8 @@ import lombok.Setter;
 @Getter
 @Setter
 
-@Entity(name = "f_userProfile")
-@Table(name = "f_userProfile")
+@Entity(name = "f_user_profile")
+@Table(name = "f_user_profile")
 public class UserProfileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

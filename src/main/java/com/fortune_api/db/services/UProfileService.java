@@ -25,4 +25,8 @@ public class UProfileService {
     public UserProfileEntity findById(long id) {
         return userProfileRepository.findById(id).get();
     }
+
+    public UserProfileEntity findProfileByUserId(long userId) {
+        return userProfileRepository.findProfileByUserId(userId);
+    }
 }

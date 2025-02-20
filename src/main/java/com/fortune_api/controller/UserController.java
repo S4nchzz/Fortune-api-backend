@@ -37,7 +37,6 @@ public class UserController {
         UserEntity user = userService.findUserByIdentityDocument(identityDocument);
 
         if (user != null) {
-            
             if (user.getDni() != null) {
                 loginResponse.put("identityDocument", user.getDni());
             } else if (user.getNie() != null) {
@@ -47,9 +46,10 @@ public class UserController {
             }
 
             return loginResponse
-                    .put("id", user.getId())
+                    .put("user_id", user.getId())
                     .put("email", user.getEmail())
-                    .put("digital_sign", user.getDigital_sign()).toString();
+                    .put("digital_sign", user.getDigital_sign())
+                    .put("is_profile_created", user.isProfileCreated()).toString();
         }
 
         return null;
@@ -123,6 +123,29 @@ public class UserController {
                 .put("digital_sign", user.getDigital_sign()).toString();
     }
 
+    @PostMapping("/updateProfileStatus")
+    public String updateProfileStatus(@RequestParam("user_id") final long user_id, @RequestParam("is_profile_created") final boolean is_profile_created) {
+        final UserEntity userToUpdate = userService.findUserById(user_id);
+        userToUpdate.setProfileCreated(is_profile_created);
+
+        userService.save(userToUpdate);
+
+        JSONObject userToUpdateJsonData = new JSONObject();
+
+        if (userToUpdate.getDni() != null) {
+            userToUpdateJsonData.put("identityDocument", userToUpdate.getDni());
+        } else if (userToUpdate.getNie() != null) {
+            userToUpdateJsonData.put("identityDocument", userToUpdate.getNie());
+        } else {
+            Log.getInstance().writeLog("AuthController | Dni and Nie are both null on findUser() data returned");
+        }
+
+        return userToUpdateJsonData
+                .put("user_id", userToUpdate.getId())
+                .put("email", userToUpdate.getEmail())
+                .put("digital_sign", userToUpdate.getDigital_sign()).toString();
+    }
+
     public static IdentityDocument documentType(final String identityDocument) {
         if (identityDocument == null || identityDocument.isEmpty()) {
             return null;
@@ -142,4 +165,5 @@ public class UserController {
 
         return Character.isAlphabetic(identityDocument.charAt(identityDocument.length() - 1)) && letterCount == 1 && nummberCount == 8 && identityDocument.length() == 9 ? IdentityDocument.DNI : IdentityDocument.NIE;
     }
+
 }

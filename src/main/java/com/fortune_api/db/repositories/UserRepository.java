@@ -10,7 +10,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @Query("select u from f_user u where u.dni = ?1")
     UserEntity findUserByDniAndPassword(final String dni);
 
-    @Query("select u from f_user u where u.dni = ?1")
+    @Query("select u from f_user u where u.nie = ?1")
     UserEntity findUserByNieAndPassword(final String nie);
 
     @Query("select u.salt from f_user u where u.dni = ?1")
