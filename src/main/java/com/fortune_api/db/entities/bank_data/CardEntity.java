@@ -1,0 +1,54 @@
+package com.fortune_api.db.entities.bank_data;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import java.util.Set;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Entity(name = "f_card_data")
+@Table(name = "f_card_data")
+public class CardEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "card_type", nullable = false)
+    @JsonProperty("card_type")
+    private String cardType;
+
+    @Column(name = "card_number", nullable = false, unique = true)
+    @JsonProperty("card_number")
+    private String cardNumber;
+
+    @Column(name = "exp_date", nullable = false)
+    @JsonProperty("exp_date")
+    private String expDate;
+
+    @Column(name = "balance", nullable = false)
+    @JsonProperty("balance")
+    private double balance;
+
+    @Column(name = "blocked", nullable = false)
+    @JsonProperty("blocked")
+    private boolean blocked;
+
+    @ManyToMany(mappedBy = "cards")
+    @JsonIgnore
+    private Set<AccountEntity> accounts;
+
+    public CardEntity(final String type, final String cardNumber, final String expDate, final double balance, final boolean blocked) {
+        this.cardType = type;
+        this.cardNumber = cardNumber;
+        this.expDate = expDate;
+        this.balance = balance;
+        this.blocked = blocked;
+    }
+}

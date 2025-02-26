@@ -1,5 +1,7 @@
 package com.fortune_api.db.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,25 +25,35 @@ public class UserProfileEntity {
     private UserEntity user;
 
     @Column(name = "online")
+    @JsonProperty("online")
     private boolean online;
 
     @Column(name = "name")
+    @JsonProperty("name")
     private String name;
 
     @Column(name = "address")
+    @JsonProperty("address")
     private String address;
 
     @Column(name = "phone")
+    @JsonProperty("phone")
     private String phone;
 
     @Column(name = "pfp")
+    @JsonProperty("pfp")
     private byte [] pfp;
 
-    public UserProfileEntity(UserEntity user_id, String name, String address, String phone, Boolean online) {
-        this.user = user_id;
+    public UserProfileEntity(UserEntity user, String name, String address, String phone, Boolean online) {
+        this.user = user;
         this.name = name;
         this.address = address;
         this.phone = phone;
         this.online = online;
+    }
+
+    @JsonProperty("user_id")
+    public Long getUserId() {
+        return user != null ? user.getId() : null;
     }
 }

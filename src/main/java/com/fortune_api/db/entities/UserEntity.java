@@ -1,5 +1,7 @@
 package com.fortune_api.db.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,32 +14,35 @@ import lombok.*;
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     private long id;
 
-    @Column(name = "dni", unique = true)
-    private String dni;
-
-    @Column(name = "nie", nullable = true, unique = true)
-    private String nie;
+    @Column(name = "identity_document", unique = true)
+    @JsonProperty("identity_document")
+    private String identity_document;
 
     @Column(name = "email", nullable = false, unique = true)
+    @JsonProperty("email")
     private String email;
 
     @Column(name = "salt", nullable = false)
+    @JsonIgnore
     private String salt;
 
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(name = "digital_sign")
+    @JsonProperty("digital_sign")
     private Integer digital_sign;
 
     @Column(name = "is_profile_created")
+    @JsonProperty("is_profile_created")
     private boolean isProfileCreated;
 
-    public UserEntity(final String dni, final String nie, final String email, final String salt, final String password) {
-        this.dni = dni;
-        this.nie = nie;
+    public UserEntity(final String identity_document, final String email, final String salt, final String password) {
+        this.identity_document = identity_document;
         this.email = email;
         this.salt = salt;
         this.password = password;
