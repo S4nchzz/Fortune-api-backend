@@ -2,7 +2,6 @@ package com.fortune_api.controller.user;
 
 import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.services.UserService;
-import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.log.Log;
 import com.fortune_api.security.dto.AuthResponse;
 import com.fortune_api.security.jwt.JwtUtils;
@@ -14,7 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthControlller {
+public class AuthController {
     @Autowired
     private UserService userService;
 

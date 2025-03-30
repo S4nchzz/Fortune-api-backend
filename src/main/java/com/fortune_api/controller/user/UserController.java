@@ -43,11 +43,10 @@ public class UserController {
         return userProfileService.generateUserProfile(user.getId(), name, address, phone, online);
     }
 
-    @GetMapping("/findUserByProfileId")
-    public UserProfileEntity findProfileByUserId() {
+    @GetMapping("/findProfile")
+    public UserProfileEntity findProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
-
 
         return userProfileService.findProfileByUserId(user.getId());
     }

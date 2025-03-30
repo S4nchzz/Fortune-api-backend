@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 @Service
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
@@ -32,7 +33,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 final UserEntity user = userService.findUserById(jwtUtils.getUserIdFromToken(authToken));
 
                 if (user != null) {
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
