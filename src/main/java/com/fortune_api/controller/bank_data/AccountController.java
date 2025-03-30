@@ -8,6 +8,8 @@ import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,11 +29,14 @@ public class AccountController {
     private CardService cardService;
 
     @PostMapping("/createAccount")
-    public AccountEntity createAccount(@RequestParam("user_id") final long user_id) {
+    public AccountEntity createAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
         String accountUUID = String.valueOf(UUID.randomUUID());
         accountUUID = accountUUID.substring(accountUUID.length() - 20).toUpperCase();
 
-        final UserEntity proprietary = userService.findUserById(user_id);
+        final UserEntity proprietary = userService.findUserById(user.getId());
 
         AccountEntity newAccount = new AccountEntity(accountUUID, proprietary, 0.0);
         AccountEntity accountInDB = accountService.saveAccount(newAccount);
@@ -64,7 +69,10 @@ public class AccountController {
     }
 
     @GetMapping("/findAccount")
-    public AccountEntity findAccount(@RequestParam("user_id") final long user_id) {
-        return accountService.findAccountByProprietary(user_id);
+    public AccountEntity findAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        return accountService.findAccountByProprietary(user.getId());
     }
 }

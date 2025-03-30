@@ -1,9 +1,12 @@
 package com.fortune_api.controller.bank_data;
 
+import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.entities.bank_data.AccountEntity;
 import com.fortune_api.db.entities.bank_data.CardEntity;
 import com.fortune_api.db.services.bank_data.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,9 +20,11 @@ public class CardController {
     @Autowired
     private AccountService accountService;
 
-    @GetMapping("/findAccMainCard")
-    public CardEntity getMainCard(@RequestParam("accountId") final String accountId) {
-        AccountEntity account = accountService.findAccountByAccId(accountId);
+    @GetMapping("/findMainCard")
+    public CardEntity getMainCard() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        AccountEntity account = accountService.findAccountByProprietary(user.getId());
 
         return account.getCards().stream()
                 .filter(card -> "MAIN".equals(card.getCardType()))
@@ -27,9 +32,12 @@ public class CardController {
                 .orElse(null);
     }
 
-    @GetMapping("/findAccCards")
-    public List<CardEntity> findAllCards(@RequestParam("accountId") final String accountId) {
-        AccountEntity account = accountService.findAccountByAccId(accountId);
+    @GetMapping("/findCards")
+    public List<CardEntity> findAllCards() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        AccountEntity account = accountService.findAccountByProprietary(user.getId());
         return account.getCards().stream().toList();
     }
 }
