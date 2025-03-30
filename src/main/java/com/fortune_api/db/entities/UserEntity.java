@@ -37,15 +37,10 @@ public class UserEntity {
     @JsonProperty("digital_sign")
     private Integer digital_sign;
 
-    @Column(name = "is_profile_created")
-    @JsonProperty("is_profile_created")
-    private boolean isProfileCreated;
-
     public UserEntity(final String identity_document, final String email, final String salt, final String password) {
         this.identity_document = identity_document;
         this.email = email;
         this.salt = salt;
         this.password = password;
-        this.isProfileCreated = false;
     }
 }
