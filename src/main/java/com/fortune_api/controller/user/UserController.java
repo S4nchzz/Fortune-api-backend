@@ -33,7 +33,7 @@ public class UserController {
         final String hashedPassword = userService.findHashedPasswordByIdentityDocument(identityDocument);
         if (hashedPassword == null) {
             Log.getInstance().writeLog("AuthController | hashedPassword is null");
-            return null;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         final boolean isPasswordCorrect = BCrypt.checkpw(password, hashedPassword);

@@ -1,16 +1,21 @@
-package com.fortune_api.security;
+package com.fortune_api.security.jwt;
 
-import com.fortune_api.security.jwt.TokenAuhtenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 public class WebSecurityConfig {
+    @Autowired
+    private TokenAuthenticationFilter tokenAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
@@ -22,8 +27,14 @@ public class WebSecurityConfig {
                         .requestMatchers("/b_operations/card/findMainCar").authenticated()
                         .requestMatchers("/b_operations/card/findCards").authenticated()
                         .anyRequest().permitAll())
-                .addFilterBefore(new TokenAuhtenticationFilter(), OncePerRequestFilter.class);
-
+                .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .build();
     }
 }

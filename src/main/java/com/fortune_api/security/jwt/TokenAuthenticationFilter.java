@@ -11,11 +11,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 
-public class TokenAuhtenticationFilter extends OncePerRequestFilter {
+@Service
+public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -43,6 +44,8 @@ public class TokenAuhtenticationFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"error\":\"Token no valido\"}");
             response.getWriter().flush();
+        } finally {
+            filterChain.doFilter(request, response);
         }
     }
 }
