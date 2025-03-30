@@ -6,8 +6,11 @@ import com.fortune_api.db.entities.bank_data.CardEntity;
 import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
+import org.json.HTTP;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +32,7 @@ public class AccountController {
     private CardService cardService;
 
     @PostMapping("/createAccount")
-    public AccountEntity createAccount() {
+    public ResponseEntity<?> createAccount() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
@@ -48,9 +51,13 @@ public class AccountController {
         cardService.saveCard(mainCard);
 
         accountInDB.getCards().add(mainCard);
-        accountService.saveAccount(accountInDB);
+        AccountEntity accountEntity = accountService.saveAccount(accountInDB);
 
-        return accountInDB;
+        if (accountEntity != null) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     private String generateCardNumber() {

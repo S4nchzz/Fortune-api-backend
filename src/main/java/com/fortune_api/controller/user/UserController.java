@@ -5,6 +5,8 @@ import com.fortune_api.db.entities.UserProfileEntity;
 import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.db.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -19,28 +21,34 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/createDigitalSign")
-    public UserEntity createDigitalSign(@RequestParam(name = "digital_sign") final int pin) {
+    public ResponseEntity<?> createDigitalSign(@RequestParam(name = "digital_sign") final int pin) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
         UserEntity userEntity = userService.findUserById(user.getId());
 
         if (userEntity.getDigital_sign() != null) {
-            return null; // For some reason the user has already a digital sign
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
         userEntity.setDigital_sign(pin);
         userService.save(userEntity);
 
-        return userEntity;
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PostMapping("/generateProfile")
-    public UserProfileEntity generateProfile(@RequestParam("name") final String name, @RequestParam(name = "address") final String address, @RequestParam(name = "phone") final String phone, @RequestParam(name = "online") final boolean online) {
+    @PostMapping("/createProfile")
+    public ResponseEntity<?> createProfile(@RequestParam("name") final String name, @RequestParam(name = "address") final String address, @RequestParam(name = "phone") final String phone) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
-        return userProfileService.generateUserProfile(user.getId(), name, address, phone, online);
+        UserProfileEntity profile = userProfileService.createUserProfile(user.getId(), name, address, phone, false);
+
+        if (profile != null) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     @GetMapping("/findProfile")

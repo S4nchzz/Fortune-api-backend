@@ -15,7 +15,7 @@ public class UProfileService {
     @Autowired
     private UserRepository userRepository;
 
-    public UserProfileEntity generateUserProfile(final long user_id, final String name, final String address, final String phone, final boolean online) {
+    public UserProfileEntity createUserProfile(final long user_id, final String name, final String address, final String phone, final boolean online) {
         final UserEntity user = userRepository.findById(user_id).get();
         final UserProfileEntity userProfileEntity = new UserProfileEntity(user, name, address, phone, online);
 

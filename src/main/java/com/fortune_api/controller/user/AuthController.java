@@ -8,6 +8,8 @@ import com.fortune_api.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
@@ -35,16 +37,16 @@ public class AuthController {
         }
 
         final UserEntity user = userService.findUserByIdentityDocument(identityDocument);
-        String token = jwtUtils.generateToken(user.getId());
+        String token = jwtUtils.generateAccessToken(user.getId());
 
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
     @PostMapping("/register")
-    public UserEntity register(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "email") final String email, @RequestParam(name = "password") final String password) {
+    public ResponseEntity<?> register(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "email") final String email, @RequestParam(name = "password") final String password) {
         final String salt = BCrypt.gensalt();
         final String passwordHashed = BCrypt.hashpw(password, salt);
 
-        return userService.register(identityDocument, email, salt, passwordHashed);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

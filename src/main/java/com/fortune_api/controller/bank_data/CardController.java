@@ -5,6 +5,7 @@ import com.fortune_api.db.entities.bank_data.AccountEntity;
 import com.fortune_api.db.entities.bank_data.CardEntity;
 import com.fortune_api.db.services.bank_data.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,23 +22,23 @@ public class CardController {
     private AccountService accountService;
 
     @GetMapping("/findMainCard")
-    public CardEntity getMainCard() {
+    public ResponseEntity<?> getMainCard() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
         AccountEntity account = accountService.findAccountByProprietary(user.getId());
 
-        return account.getCards().stream()
+        return ResponseEntity.ok(account.getCards().stream()
                 .filter(card -> "MAIN".equals(card.getCardType()))
                 .findFirst()
-                .orElse(null);
+                .orElse(null));
     }
 
     @GetMapping("/findCards")
-    public List<CardEntity> findAllCards() {
+    public ResponseEntity<List<CardEntity>> findAllCards() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
         AccountEntity account = accountService.findAccountByProprietary(user.getId());
-        return account.getCards().stream().toList();
+        return ResponseEntity.ok(account.getCards().stream().toList());
     }
 }
