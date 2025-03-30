@@ -8,6 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,16 +38,28 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
+
+            filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\":\"Token expirado\"}");
+
+            response.getWriter().write(
+                    new JSONObject()
+                    .put("error", "TKN_EXPIRED")
+                    .put("message", "The token has expired")
+                    .toString());
+
             response.getWriter().flush();
         } catch (JwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\":\"Token no valido\"}");
+
+            response.getWriter().write(
+                    new JSONObject()
+                            .put("error", "TKN_INVALID")
+                            .put("message", "The token is invalid")
+                            .toString());
+
             response.getWriter().flush();
-        } finally {
-            filterChain.doFilter(request, response);
         }
     }
 }

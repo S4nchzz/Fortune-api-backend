@@ -66,11 +66,11 @@ public class JwtUtils {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
         } catch (ExpiredJwtException e) {
-            return false;
+            throw e;
         } catch (SignatureException e) {
-            return false;
+            throw e;
         } catch (JwtException e) {
-            return false;
+            throw e;
         }
     }
 }
