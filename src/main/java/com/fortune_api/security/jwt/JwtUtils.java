@@ -49,7 +49,7 @@ public class JwtUtils {
     public Integer getUserIdFromToken(String authToken) {
         try {
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(jwtSecret)
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(authToken)
                     .getBody();

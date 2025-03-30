@@ -1,10 +1,7 @@
 package com.fortune_api.db.services;
 
-import com.fortune_api.controller.user.UserController;
 import com.fortune_api.db.entities.UserEntity;
-import com.fortune_api.db.entities.enums.IdentityDocument;
 import com.fortune_api.db.repositories.UserRepository;
-import com.fortune_api.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,0 +1,51 @@
+package com.fortune_api.controller.user;
+
+import com.fortune_api.db.entities.UserEntity;
+import com.fortune_api.db.services.UserService;
+import com.fortune_api.db.services.UProfileService;
+import com.fortune_api.log.Log;
+import com.fortune_api.security.dto.AuthResponse;
+import com.fortune_api.security.jwt.JwtUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthControlller {
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @GetMapping("/login")
+    public ResponseEntity<?> login(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "password") final String password) {
+        final String hashedPassword = userService.findHashedPasswordByIdentityDocument(identityDocument);
+        if (hashedPassword == null) {
+            Log.getInstance().writeLog("AuthController | hashedPassword is null");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        final boolean isPasswordCorrect = BCrypt.checkpw(password, hashedPassword);
+
+        if (!isPasswordCorrect) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        final UserEntity user = userService.findUserByIdentityDocument(identityDocument);
+        String token = jwtUtils.generateToken(user.getId());
+
+        return ResponseEntity.ok(new AuthResponse(token));
+    }
+
+    @PostMapping("/register")
+    public UserEntity register(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "email") final String email, @RequestParam(name = "password") final String password) {
+        final String salt = BCrypt.gensalt();
+        final String passwordHashed = BCrypt.hashpw(password, salt);
+
+        return userService.register(identityDocument, email, salt, passwordHashed);
+    }
+}

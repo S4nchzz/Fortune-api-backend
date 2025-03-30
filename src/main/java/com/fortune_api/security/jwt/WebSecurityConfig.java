@@ -22,12 +22,13 @@ public class WebSecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/b_operations/account/createAccount").authenticated()
                         .requestMatchers("/b_operations/account/findAccount").authenticated()
                         .requestMatchers("/b_operations/card/findMainCar").authenticated()
                         .requestMatchers("/b_operations/card/findCards").authenticated()
                         .requestMatchers("/user/createDigitalSign").authenticated()
-                        .anyRequest().permitAll())
+                        .anyRequest().authenticated())
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
