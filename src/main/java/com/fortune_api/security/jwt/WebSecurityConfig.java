@@ -22,15 +22,15 @@ public class WebSecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/b_operations/accont/createAccount").authenticated()
-                        .requestMatchers("/b_operations/accont/findAccount").authenticated()
+                        .requestMatchers("/b_operations/account/createAccount").authenticated()
+                        .requestMatchers("/b_operations/account/findAccount").authenticated()
                         .requestMatchers("/b_operations/card/findMainCar").authenticated()
                         .requestMatchers("/b_operations/card/findCards").authenticated()
+                        .requestMatchers("/user/createDigitalSign").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
