@@ -37,20 +37,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PostMapping("/createProfile")
-    public ResponseEntity<?> createProfile(@RequestParam("name") final String name, @RequestParam(name = "address") final String address, @RequestParam(name = "phone") final String phone) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserEntity user = (UserEntity) authentication.getPrincipal();
-
-        UserProfileEntity profile = userProfileService.createUserProfile(user.getId(), name, address, phone, false);
-
-        if (profile != null) {
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
-    }
-
     @GetMapping("/findProfile")
     public UserProfileEntity findProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

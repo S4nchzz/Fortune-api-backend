@@ -15,4 +15,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query("select u from f_user u where u.identity_document = ?1")
     UserEntity findUserByIdentityDocument(String identity_document);
+
+    @Query("select u from f_user u where u.email = ?1")
+    UserEntity findUserByEmail(String email);
 }

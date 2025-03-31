@@ -56,13 +56,17 @@ public class AuthController {
         final String salt = BCrypt.gensalt();
         final String passwordHashed = BCrypt.hashpw(password, salt);
 
+        if (userService.findUserByIdentityDocument(identityDocument) != null || userService.findUserByEmail(email) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
         UserEntity userEntity = userService.register(identityDocument, email, salt, passwordHashed);
         UserProfileEntity profile = uProfileService.createUserProfile(userEntity.getId(), name, address, phone, false);
 
         if (profile != null) {
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     }
 }
