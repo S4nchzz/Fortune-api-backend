@@ -3,7 +3,7 @@ package com.fortune_api.controller.auth;
 import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.services.UserService;
 import com.fortune_api.log.Log;
-import com.fortune_api.security.dto.AuthResponse;
+import com.fortune_api.dto.AuthResponse;
 import com.fortune_api.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,7 +37,13 @@ public class AuthController {
         final UserEntity user = userService.findUserByIdentityDocument(identityDocument);
         String token = jwtUtils.generateAccessToken(user.getId());
 
-        return ResponseEntity.ok(new AuthResponse(token));
+        AuthResponse authResponse = null;
+        if (user.getDigital_sign() == null) {
+            authResponse = new AuthResponse(token, false);
+        } else {
+            authResponse = new AuthResponse(token, true);
+        }
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/register")

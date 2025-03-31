@@ -1,4 +1,4 @@
-package com.fortune_api.security.dto;
+package com.fortune_api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,4 +11,5 @@ import lombok.Setter;
 @Setter
 public class AuthResponse {
     private String token;
+    private boolean hasDigitalSign;
 }
