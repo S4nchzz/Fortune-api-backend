@@ -1,6 +1,8 @@
 package com.fortune_api.controller.auth;
 
 import com.fortune_api.db.entities.UserEntity;
+import com.fortune_api.db.entities.UserProfileEntity;
+import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.db.services.UserService;
 import com.fortune_api.log.Log;
 import com.fortune_api.dto.AuthResponse;
@@ -16,6 +18,9 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 public class AuthController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UProfileService uProfileService;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -47,10 +52,17 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "email") final String email, @RequestParam(name = "password") final String password) {
+    public ResponseEntity<?> register(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "email") final String email, @RequestParam(name = "password") final String password, @RequestParam(name = "name") final String name, @RequestParam(name = "phone") final String phone, @RequestParam(name = "address") final String address) {
         final String salt = BCrypt.gensalt();
         final String passwordHashed = BCrypt.hashpw(password, salt);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        UserEntity userEntity = userService.register(identityDocument, email, salt, passwordHashed);
+        UserProfileEntity profile = uProfileService.createUserProfile(userEntity.getId(), name, address, phone, false);
+
+        if (profile != null) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 }
