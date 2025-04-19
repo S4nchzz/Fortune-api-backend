@@ -46,7 +46,7 @@ public class JwtUtils {
         return null;
     }
 
-    public Integer getUserIdFromToken(String authToken) {
+    public Long getUserIdFromToken(String authToken) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -55,7 +55,7 @@ public class JwtUtils {
                     .getBody();
 
             String userId = claims.getSubject();
-            return Integer.parseInt(userId);
+            return Long.valueOf(userId);
         } catch (JwtException | NumberFormatException e) {
             return null;
         }
