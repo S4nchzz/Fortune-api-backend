@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -51,12 +53,17 @@ public class CardEntity {
     @JsonIgnore
     private AccountEntity account;
 
-    public CardEntity(final String uuid, final String type, final String cardNumber, final String expDate, final double balance, final boolean blocked) {
+    @OneToMany(mappedBy = "card_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MovementCardEntity> movements = new HashSet<>();
+
+    public CardEntity(final String uuid, final String type, final String cardNumber, final String expDate, final double balance, final boolean blocked, final AccountEntity account) {
         this.card_uuid = uuid;
         this.cardType = type;
         this.cardNumber = cardNumber;
         this.expDate = expDate;
         this.balance = balance;
         this.blocked = blocked;
+
+        this.account = account;
     }
 }

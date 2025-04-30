@@ -44,9 +44,4 @@ public class AccountEntity {
 
         this.cards = new HashSet<>();
     }
-
-    @JsonProperty("proprietary_id")
-    public Long getProprietaryId() {
-        return proprietary != null ? proprietary.getId() : null;
-    }
 }
