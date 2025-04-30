@@ -36,5 +36,5 @@ public class MovementCardEntity {
     private Date date;
 
     @Column(name = "amount", nullable = false)
-    private double amount;
+    private String amount;
 }

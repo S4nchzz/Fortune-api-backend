@@ -47,7 +47,9 @@ public class AccountController {
         final String cardNumber = generateCardNumber();
         final LocalDate currentDate = LocalDate.now();
         final String exp_date = currentDate.getMonthValue() + "/" + (currentDate.getYear() + 5);
-        CardEntity mainCard = new CardEntity(UUID.randomUUID().toString(), "MAIN", cardNumber, exp_date, 0.0, false, accountInDB);
+        final int cvv = new Random().nextInt(900) + 100;
+
+        CardEntity mainCard = new CardEntity(UUID.randomUUID().toString(), "MAIN", cardNumber, exp_date, cvv, 0.0, false, accountInDB);
         cardService.saveCard(mainCard);
 
         accountInDB.getCards().add(mainCard);

@@ -40,6 +40,10 @@ public class CardEntity {
     @JsonProperty("exp_date")
     private String expDate;
 
+    @Column(name = "cvv", nullable = false)
+    @JsonProperty("cvv")
+    private int cvv;
+
     @Column(name = "balance", nullable = false)
     @JsonProperty("balance")
     private double balance;
@@ -56,9 +60,10 @@ public class CardEntity {
     @OneToMany(mappedBy = "card_id", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MovementCardEntity> movements = new HashSet<>();
 
-    public CardEntity(final String uuid, final String type, final String cardNumber, final String expDate, final double balance, final boolean blocked, final AccountEntity account) {
+    public CardEntity(final String uuid, final String type, final String cardNumber, final String expDate, int cvv, final double balance, final boolean blocked, final AccountEntity account) {
         this.card_uuid = uuid;
         this.cardType = type;
+        this.cvv = cvv;
         this.cardNumber = cardNumber;
         this.expDate = expDate;
         this.balance = balance;
