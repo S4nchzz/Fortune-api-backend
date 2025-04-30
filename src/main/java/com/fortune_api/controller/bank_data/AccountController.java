@@ -48,8 +48,9 @@ public class AccountController {
         final LocalDate currentDate = LocalDate.now();
         final String exp_date = currentDate.getMonthValue() + "/" + (currentDate.getYear() + 5);
         final int cvv = new Random().nextInt(900) + 100;
+        final int pin = new Random().nextInt(9000) + 1000;
 
-        CardEntity mainCard = new CardEntity(UUID.randomUUID().toString(), "MAIN", cardNumber, exp_date, cvv, 0.0, false, accountInDB);
+        CardEntity mainCard = new CardEntity(UUID.randomUUID().toString(), "MAIN", cardNumber, exp_date, cvv, pin, 0.0, false, accountInDB);
         cardService.saveCard(mainCard);
 
         accountInDB.getCards().add(mainCard);
