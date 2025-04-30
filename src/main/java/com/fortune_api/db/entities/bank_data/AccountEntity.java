@@ -34,13 +34,8 @@ public class AccountEntity {
     @JoinColumn(name = "proprietary")
     private UserEntity proprietary;
 
-    @ManyToMany
-    @JoinTable(
-            name = "f_account_cards",
-            joinColumns = @JoinColumn(name = "account_id"),
-            inverseJoinColumns = @JoinColumn(name = "card_id")
-    )
-    private Set<CardEntity> cards;
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CardEntity> cards = new HashSet<>();
 
     public AccountEntity(String accountUUID, UserEntity proprietary, double balance) {
         this.account_id = accountUUID;

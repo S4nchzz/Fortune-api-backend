@@ -46,9 +46,10 @@ public class CardEntity {
     @JsonProperty("blocked")
     private boolean blocked;
 
-    @ManyToMany(mappedBy = "cards")
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
     @JsonIgnore
-    private Set<AccountEntity> accounts;
+    private AccountEntity account;
 
     public CardEntity(final String uuid, final String type, final String cardNumber, final String expDate, final double balance, final boolean blocked) {
         this.card_uuid = uuid;
