@@ -34,7 +34,7 @@ public class CardController {
     }
 
     @GetMapping("/findCards")
-    public ResponseEntity<List<CardEntity>> findAllCards() {
+    public ResponseEntity<List<CardEntity>> findCards() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
 

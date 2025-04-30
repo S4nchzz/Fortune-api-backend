@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.Set;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +19,12 @@ import java.util.Set;
 public class CardEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private int id;
+
+    @Column(name = "card_uuid", nullable = false)
+    @JsonProperty("card_uuid")
+    private String card_uuid;
 
     @Column(name = "card_type", nullable = false)
     @JsonProperty("card_type")
@@ -44,7 +50,8 @@ public class CardEntity {
     @JsonIgnore
     private Set<AccountEntity> accounts;
 
-    public CardEntity(final String type, final String cardNumber, final String expDate, final double balance, final boolean blocked) {
+    public CardEntity(final String uuid, final String type, final String cardNumber, final String expDate, final double balance, final boolean blocked) {
+        this.card_uuid = uuid;
         this.cardType = type;
         this.cardNumber = cardNumber;
         this.expDate = expDate;
