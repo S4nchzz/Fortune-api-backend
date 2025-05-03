@@ -148,6 +148,25 @@ public class CardController {
         }
     }
 
+    @PostMapping("/getBalance")
+    public ResponseEntity<?> getBalance(@RequestBody String cardUUID) {
+        JSONObject json = new JSONObject(cardUUID);
+
+        CardEntity cardEntity = getCard((String) json.get("card_uuid"));
+
+        if (cardEntity != null) {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("card_balance", cardEntity.getBalance())
+                    .toString()
+            );
+        } else {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("card_balance", "0,00")
+                    .toString()
+            );
+        }
+    }
+
     private CardEntity getCard(String cardUUID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
