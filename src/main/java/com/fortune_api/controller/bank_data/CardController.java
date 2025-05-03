@@ -110,6 +110,25 @@ public class CardController {
         }
     }
 
+    @PostMapping("/getExpDate")
+    public ResponseEntity<?> getExpDate(@RequestBody String cardUUID) {
+        JSONObject json = new JSONObject(cardUUID);
+
+        CardEntity cardEntity = getCard((String) json.get("card_uuid"));
+
+        if (cardEntity != null) {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("cardExpDate", cardEntity.getExpDate())
+                    .toString()
+            );
+        } else {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("cardExpDate", "00/00")
+                    .toString()
+            );
+        }
+    }
+
     private CardEntity getCard(String cardUUID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
