@@ -91,6 +91,25 @@ public class CardController {
         }
     }
 
+    @PostMapping("/getCardNumber")
+    public ResponseEntity<?> getCardNumber(@RequestBody String cardUUID) {
+        JSONObject json = new JSONObject(cardUUID);
+
+        CardEntity cardEntity = getCard((String) json.get("card_uuid"));
+
+        if (cardEntity != null) {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("cardNumber", cardEntity.getCardNumber())
+                    .toString()
+            );
+        } else {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("cardNumber", "???? ???? ???? ????")
+                    .toString()
+            );
+        }
+    }
+
     private CardEntity getCard(String cardUUID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
