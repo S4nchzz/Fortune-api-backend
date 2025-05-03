@@ -129,6 +129,25 @@ public class CardController {
         }
     }
 
+    @PostMapping("/getCvv")
+    public ResponseEntity<?> getCvv(@RequestBody String cardUUID) {
+        JSONObject json = new JSONObject(cardUUID);
+
+        CardEntity cardEntity = getCard((String) json.get("card_uuid"));
+
+        if (cardEntity != null) {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("card_cvv", cardEntity.getCvv())
+                    .toString()
+            );
+        } else {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("card_cvv", "000")
+                    .toString()
+            );
+        }
+    }
+
     private CardEntity getCard(String cardUUID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
