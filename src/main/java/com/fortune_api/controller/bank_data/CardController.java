@@ -72,6 +72,24 @@ public class CardController {
         );
     }
 
+    @PostMapping("/isCardLocked")
+    public ResponseEntity<?> isCardLocked(@RequestBody String cardUUID) {
+        JSONObject json = new JSONObject(cardUUID);
+
+        CardEntity cardEntity = getCard((String) json.get("card_uuid"));
+
+        if (cardEntity != null) {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("locked", cardEntity.isBlocked())
+                    .toString()
+            );
+        } else {
+            return ResponseEntity.ok(new JSONObject()
+                    .put("locked", false)
+                    .toString()
+            );
+        }
+    }
 
     private CardEntity getCard(String cardUUID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
