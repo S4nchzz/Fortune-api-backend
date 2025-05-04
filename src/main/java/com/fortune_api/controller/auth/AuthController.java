@@ -7,9 +7,12 @@ import com.fortune_api.db.services.UserService;
 import com.fortune_api.log.Log;
 import com.fortune_api.dto.AuthResponse;
 import com.fortune_api.security.jwt.JwtUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
@@ -68,5 +71,17 @@ public class AuthController {
         }
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    }
+
+    @PostMapping("/signOperation")
+    public ResponseEntity<?> signOperation(@RequestParam(name = "digital_sign") final int digital_sign) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        return ResponseEntity.ok(
+                new JSONObject()
+                        .put("operationAccepted", user.getDigital_sign() == digital_sign)
+                        .toString()
+        );
     }
 }
