@@ -9,6 +9,7 @@ import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
 import com.fortune_api.security.jwt.JwtUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class UserController {
     private CardService cardService;
 
     @PostMapping("/createDigitalSign")
-    public ResponseEntity<?> createDigitalSign(@RequestParam(name = "digital_sign") final int pin) {
+    public ResponseEntity<?> createDigitalSign(@RequestBody() String createDigitalSignRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
@@ -46,6 +47,9 @@ public class UserController {
         if (userEntity.getDigital_sign() != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
+
+        JSONObject createDigitalSignRequestJSON = new JSONObject(createDigitalSignRequest);
+        final int pin = createDigitalSignRequestJSON.getInt("digital_sign");
 
         userEntity.setDigital_sign(pin);
         userService.save(userEntity);

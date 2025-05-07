@@ -34,8 +34,12 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "password") final String password) {
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody() String loginRequest) {
+        JSONObject loginRequestJson = new JSONObject(loginRequest);
+        final String identityDocument = loginRequestJson.getString("identityDocument");
+        final String password = loginRequestJson.getString("password");
+
         final String hashedPassword = userService.findHashedPasswordByIdentityDocument(identityDocument);
         if (hashedPassword == null) {
             Log.getInstance().writeLog("AuthController | hashedPassword is null");
@@ -61,7 +65,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestParam(name = "identityDocument") final String identityDocument, @RequestParam(name = "email") final String email, @RequestParam(name = "password") final String password, @RequestParam(name = "name") final String name, @RequestParam(name = "phone") final String phone, @RequestParam(name = "address") final String address) {
+    public ResponseEntity<?> register(@RequestBody() String registerRequest) {
+        JSONObject registerRequestJSON = new JSONObject(registerRequest);
+        String identityDocument = registerRequestJSON.getString("identityDocument");
+        String password = registerRequestJSON.getString("password");
+        String email = registerRequestJSON.getString("email");
+        String name = registerRequestJSON.getString("name");
+        String address = registerRequestJSON.getString("address");
+        String phone = registerRequestJSON.getString("phone");
+
         final String salt = BCrypt.gensalt();
         final String passwordHashed = BCrypt.hashpw(password, salt);
 
@@ -80,9 +92,12 @@ public class AuthController {
     }
 
     @PostMapping("/signOperation")
-    public ResponseEntity<?> signOperation(@RequestParam(name = "digital_sign") final int digital_sign) {
+    public ResponseEntity<?> signOperation(@RequestBody() String signOperationRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        JSONObject signOperationRequestJSON = new JSONObject(signOperationRequest);
+        final int digital_sign = signOperationRequestJSON.getInt("digital_sign");
 
         return ResponseEntity.ok(
                 new JSONObject()
