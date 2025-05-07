@@ -2,8 +2,11 @@ package com.fortune_api.controller.auth;
 
 import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.entities.UserProfileEntity;
+import com.fortune_api.db.entities.bank_data.AccountEntity;
+import com.fortune_api.db.entities.bank_data.CardEntity;
 import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.db.services.UserService;
+import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.log.Log;
 import com.fortune_api.dto.AuthResponse;
 import com.fortune_api.security.jwt.JwtUtils;
@@ -21,6 +24,9 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 public class AuthController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AccountService accountService;
 
     @Autowired
     private UProfileService uProfileService;

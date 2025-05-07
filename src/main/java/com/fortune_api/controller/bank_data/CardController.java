@@ -167,6 +167,49 @@ public class CardController {
         }
     }
 
+    @PostMapping("/addAccountBalance")
+    public ResponseEntity<?> addAccountBalance(@RequestBody() String accNewBalance) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.ok(
+                    new JSONObject()
+                            .put("balanceUpdated", false)
+                            .toString()
+            );
+        }
+
+        JSONObject reqJson = new JSONObject(accNewBalance);
+        double newBalance = reqJson.getDouble("newBalance");
+
+        AccountEntity account = this.accountService.findAccountByProprietary(user.getId());
+
+        if (account == null) {
+            return ResponseEntity.ok(
+                    new JSONObject()
+                            .put("balanceUpdated", false)
+                            .toString()
+            );
+        }
+
+        for (CardEntity card : account.getCards()) {
+            if (card.getCardType().equalsIgnoreCase("MAIN")) {
+                card.setBalance(newBalance);
+            } else {
+                card.setBalance(0);
+            }
+        }
+
+        accountService.saveAccount(account);
+
+        return ResponseEntity.ok(
+                new JSONObject()
+                        .put("balanceUpdated", true)
+                        .toString()
+        );
+    }
+
     private CardEntity getCard(String cardUUID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
