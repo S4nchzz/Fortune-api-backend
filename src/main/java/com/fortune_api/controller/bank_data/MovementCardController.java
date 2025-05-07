@@ -4,8 +4,10 @@ import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.entities.bank_data.AccountEntity;
 import com.fortune_api.db.entities.bank_data.CardEntity;
 import com.fortune_api.db.entities.bank_data.MovementCardEntity;
+import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
+import com.fortune_api.db.services.bank_data.MovementCardService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,12 @@ import java.util.List;
 public class MovementCardController {
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private MovementCardService movementCardService;
+
+    @Autowired
+    private UProfileService uProfileService;
 
     @PostMapping("/findMovements")
     public ResponseEntity<?> findMovements(@RequestBody String uuid) {
@@ -40,5 +48,43 @@ public class MovementCardController {
         }
 
         return ResponseEntity.ok(movementCardEntityList);
+    }
+
+    @PostMapping("/simulatePayment")
+    public ResponseEntity<?> simulatePayment(@RequestBody String simulatePaymentRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.ok(
+                    new JSONObject()
+                            .put("paymentSimulated", false)
+                            .toString()
+            );
+        }
+
+        JSONObject simulatePaymentRequestJSON = new JSONObject(simulatePaymentRequest);
+        final String cardUUID = simulatePaymentRequestJSON.getString("cardUUID");
+        final String amount = "-" + simulatePaymentRequestJSON.getDouble("amount");
+        final String receptorEntity = simulatePaymentRequestJSON.getString("receptorEntity");
+
+        final AccountEntity account = accountService.findAccountByProprietary(user.getId());
+
+        boolean movementSaved = false;
+
+        for (CardEntity cardEntity : account.getCards()) {
+            if (cardEntity.getCard_uuid().equals(cardUUID)) {
+                final MovementCardEntity movement = movementCardService.saveMovement(amount, receptorEntity, uProfileService.findProfileByUserId(user.getId()).getName(), cardEntity);
+                if (movement != null) {
+                    movementSaved = true;
+                }
+            }
+        }
+
+        return ResponseEntity.ok(
+                new JSONObject()
+                        .put("paymentSimulated", movementSaved)
+                        .toString()
+        );
     }
 }

@@ -37,4 +37,12 @@ public class MovementCardEntity {
 
     @Column(name = "amount", nullable = false)
     private String amount;
+
+    public MovementCardEntity(String amount, String receptorEntity, String sender, CardEntity card) {
+        this.amount = amount;
+        this.entity_receiver = receptorEntity;
+        this.entity_sender = sender;
+        this.card_id = card;
+        this.date = new Date();
+    }
 }
