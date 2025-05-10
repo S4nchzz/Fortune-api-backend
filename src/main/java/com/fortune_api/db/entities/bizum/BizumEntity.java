@@ -32,8 +32,16 @@ public class BizumEntity {
     private String description;
 
     @Column(name = "amount")
-    private String amount;
+    private double amount;
 
     @Column(name = "date")
     private Date date;
+
+    public BizumEntity(UserEntity from, UserEntity to, String description, double amount) {
+        this.from = from;
+        this.to = to;
+        this.description = description;
+        this.amount = amount;
+        this.date = new Date();
+    }
 }

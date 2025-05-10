@@ -4,10 +4,12 @@ import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.entities.UserProfileEntity;
 import com.fortune_api.db.entities.bank_data.AccountEntity;
 import com.fortune_api.db.entities.bank_data.CardEntity;
+import com.fortune_api.db.entities.bizum.BizumEntity;
 import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
+import com.fortune_api.db.services.bizum.BizumService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/b_operations/bizum")
@@ -31,6 +35,9 @@ public class BizumController {
     @Autowired
     private CardService cardService;
 
+    @Autowired
+    private BizumService bizumService;
+
     @PostMapping("/makeBizum")
     public ResponseEntity<?> makeBizum(@RequestBody String body) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -43,6 +50,7 @@ public class BizumController {
         JSONObject bizumJSON = new JSONObject(body);
         final double amount = bizumJSON.getDouble("amount");
         final String phone = bizumJSON.getString("phone");
+        final String description = bizumJSON.getString("description");
 
         UserProfileEntity userProfileToSend = uProfileService.findByPhone(phone);
         if (userProfileToSend == null) {
@@ -88,6 +96,12 @@ public class BizumController {
 
                 requestingUserMainCard.setBalance(requestingUserMainCard.getBalance() - amount);
                 cardService.saveCard(requestingUserMainCard);
+
+                BizumEntity bizum = bizumService.saveOperation(user, userToSend, description, amount);
+
+                if (bizum == null) {
+                    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+                }
 
                 return ResponseEntity.status(HttpStatus.OK).build();
             }
