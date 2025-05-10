@@ -31,6 +31,9 @@ public class MovementCardController {
     @Autowired
     private UProfileService uProfileService;
 
+    @Autowired
+    private CardService cardService;
+
     @PostMapping("/findMovements")
     public ResponseEntity<?> findMovements(@RequestBody String uuid) {
         JSONObject json = new JSONObject(uuid);
@@ -77,6 +80,8 @@ public class MovementCardController {
                 final MovementCardEntity movement = movementCardService.saveMovement(amount, receptorEntity, uProfileService.findProfileByUserId(user.getId()).getName(), cardEntity);
                 if (movement != null) {
                     movementSaved = true;
+                    cardEntity.setBalance(cardEntity.getBalance() - simulatePaymentRequestJSON.getDouble("amount"));
+                    cardService.saveCard(cardEntity);
                 }
             }
         }
