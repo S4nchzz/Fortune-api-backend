@@ -6,7 +6,6 @@ import com.fortune_api.db.entities.bank_data.CardEntity;
 import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
-import org.json.HTTP;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -79,10 +78,23 @@ public class AccountController {
     }
 
     @GetMapping("/findAccount")
-    public AccountEntity findAccount() {
+    public ResponseEntity<?> findAccount() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
-        return accountService.findAccountByProprietary(user.getId());
+        AccountEntity accountEntity = accountService.findAccountByProprietary(user.getId());
+        double cardSumBalance = 0.0;
+
+        for (CardEntity c : accountEntity.getCards()) {
+            cardSumBalance += c.getBalance();
+        }
+
+
+        return ResponseEntity.ok(
+                new JSONObject()
+                        .put("account_id", accountEntity.getAccount_id())
+                        .put("total_balance", cardSumBalance)
+                        .toString()
+        );
     }
 }
