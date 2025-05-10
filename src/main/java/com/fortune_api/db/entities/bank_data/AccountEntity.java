@@ -26,10 +26,6 @@ public class AccountEntity {
     @JsonProperty("account_id")
     private String account_id;
 
-    @Column(name = "total_balance", nullable = false)
-    @JsonProperty("total_balance")
-    private double total_balance;
-
     @OneToOne
     @JoinColumn(name = "proprietary")
     private UserEntity proprietary;
@@ -40,7 +36,6 @@ public class AccountEntity {
     public AccountEntity(String accountUUID, UserEntity proprietary, double balance) {
         this.account_id = accountUUID;
         this.proprietary = proprietary;
-        this.total_balance = balance;
 
         this.cards = new HashSet<>();
     }

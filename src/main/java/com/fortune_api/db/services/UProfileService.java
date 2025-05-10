@@ -29,4 +29,8 @@ public class UProfileService {
     public UserProfileEntity findProfileByUserId(long userId) {
         return userProfileRepository.findProfileByUserId(userId);
     }
+
+    public UserProfileEntity findByPhone(String phone) {
+        return userProfileRepository.findByPhone(phone);
+    }
 }

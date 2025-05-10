@@ -9,4 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface UProfileRepository extends JpaRepository<UserProfileEntity, Long> {
     @Query("select up from f_user_profile up where up.user.id = ?1")
     UserProfileEntity findProfileByUserId(long userId);
+
+    @Query("select u from f_user_profile u where u.phone = ?1")
+    UserProfileEntity findByPhone(String phone);
 }

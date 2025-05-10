@@ -65,15 +65,4 @@ public class UserController {
         UserEntity userEntity = userService.findUserById(user.getId());
         return userProfileService.findProfileByUserId(userEntity.getId());
     }
-
-    @GetMapping("/getAccountBalance")
-    public ResponseEntity<?> getAccountBalance() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserEntity user = (UserEntity) authentication.getPrincipal();
-
-        UserEntity userEntity = userService.findUserById(user.getId());
-        AccountEntity userAccount = accountService.findAccountByProprietary(userEntity.getId());
-
-        return ResponseEntity.ok(userAccount.getTotal_balance());
-    }
 }
