@@ -2,13 +2,11 @@ package com.fortune_api.controller.auth;
 
 import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.entities.UserProfileEntity;
-import com.fortune_api.db.entities.bank_data.AccountEntity;
-import com.fortune_api.db.entities.bank_data.CardEntity;
 import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.log.Log;
-import com.fortune_api.dto.AuthResponse;
+import com.fortune_api.network.response.AuthResponse;
 import com.fortune_api.security.jwt.JwtUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

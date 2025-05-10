@@ -6,6 +6,8 @@ import com.fortune_api.db.repositories.BizumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class BizumService {
     @Autowired
@@ -18,5 +20,9 @@ public class BizumService {
                 description,
                 amount
         ));
+    }
+
+    public List<BizumEntity> getBizums(long id) {
+        return bizumRepository.getBizums(id);
     }
 }

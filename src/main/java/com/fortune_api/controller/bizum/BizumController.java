@@ -10,6 +10,7 @@ import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
 import com.fortune_api.db.services.bizum.BizumService;
+import com.fortune_api.network.response.BizumResponse;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/b_operations/bizum")
@@ -108,5 +111,50 @@ public class BizumController {
         }
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    }
+
+    @PostMapping("/getBizums")
+    public ResponseEntity<?> getBizums() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        List<BizumResponse> bizumResponse = new ArrayList<>();
+        List<BizumEntity> bizums = bizumService.getBizums(user.getId());
+
+        for (BizumEntity b : bizums) {
+            UserProfileEntity fromProfile = uProfileService.findProfileByUserId(b.getFrom().getId());
+            UserProfileEntity toProfile = uProfileService.findProfileByUserId(b.getTo().getId());
+
+            if (fromProfile != null && toProfile != null) {
+                boolean amountIn = false;
+                if (b.getFrom().getId() != user.getId()) {
+                    amountIn = true;
+                }
+
+                bizumResponse.add(new BizumResponse(
+                        b.getDate(),
+                        getFormattedName(toProfile.getName()),
+                        b.getAmount(),
+                        b.getDescription(),
+                        amountIn
+                ));
+            }
+        }
+
+        return ResponseEntity.ok(bizumResponse);
+    }
+
+    private String getFormattedName(final String name) {
+        String [] splitedName = name.split(" ");
+        String formattedName = splitedName[0];
+
+        if (splitedName.length > 1) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(formattedName).append(" ");
+            sb.append(splitedName[1].toUpperCase().charAt(0)).append(".");
+            formattedName = sb.toString();
+        }
+
+        return formattedName;
     }
 }
