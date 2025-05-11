@@ -11,6 +11,7 @@ import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
 import com.fortune_api.db.services.bizum.BizumService;
 import com.fortune_api.network.response.BizumResponse;
+import jakarta.persistence.Entity;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -100,7 +101,7 @@ public class BizumController {
                 requestingUserMainCard.setBalance(requestingUserMainCard.getBalance() - amount);
                 cardService.saveCard(requestingUserMainCard);
 
-                BizumEntity bizum = bizumService.saveOperation(user, userToSend, description, amount);
+                BizumEntity bizum = bizumService.saveOperation(user, userToSend, description, amount, false);
 
                 if (bizum == null) {
                     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
@@ -147,6 +148,50 @@ public class BizumController {
         }
 
         return ResponseEntity.ok(bizumResponse);
+    }
+
+    @PostMapping("/requestBizum")
+    public ResponseEntity<?> requestBizum(@RequestBody String body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        JSONObject requestBizumJSON = new JSONObject(body);
+        final double amount = requestBizumJSON.getDouble("amount");
+        final String phone = requestBizumJSON.getString("phone");
+        final String description = requestBizumJSON.getString("description");
+
+        UserProfileEntity userProfileToSend = uProfileService.findByPhone(phone);
+        if (userProfileToSend == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        UserProfileEntity requestingUserProfile = uProfileService.findProfileByUserId(user.getId());
+        if (requestingUserProfile != null && userProfileToSend.getPhone().equals(requestingUserProfile.getPhone())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        UserEntity userToSend = userService.findUserById(userProfileToSend.getUserId());
+
+        if (userToSend == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        AccountEntity accountToSend = accountService.findAccountByProprietary(userToSend.getId());
+        if (accountToSend == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        BizumEntity b = bizumService.saveOperation(user, userToSend, description, amount, true);
+
+        if (b != null) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     }
 
     private String getFormattedName(final String name) {

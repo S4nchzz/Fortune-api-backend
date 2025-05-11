@@ -37,11 +37,15 @@ public class BizumEntity {
     @Column(name = "date")
     private Date date;
 
-    public BizumEntity(UserEntity from, UserEntity to, String description, double amount) {
+    @Column(name = "is_requesting")
+    private boolean isRequesting;
+
+    public BizumEntity(UserEntity from, UserEntity to, String description, double amount, boolean isRequesting) {
         this.from = from;
         this.to = to;
         this.description = description;
         this.amount = amount;
         this.date = new Date();
+        this.isRequesting = isRequesting;
     }
 }
