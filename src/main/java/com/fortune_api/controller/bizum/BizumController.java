@@ -122,10 +122,15 @@ public class BizumController {
         List<BizumEntity> bizums = bizumService.getBizums(user.getId());
 
         for (BizumEntity b : bizums) {
-            UserProfileEntity fromProfile = uProfileService.findProfileByUserId(b.getFrom().getId());
-            UserProfileEntity toProfile = uProfileService.findProfileByUserId(b.getTo().getId());
+            UserProfileEntity fromProfile = null;
 
-            if (fromProfile != null && toProfile != null) {
+            if (b.getTo().getId() != user.getId() && b.getFrom().getId() == user.getId()) {
+                fromProfile = uProfileService.findProfileByUserId(b.getTo().getId());
+            } else if (b.getTo().getId() == user.getId() && b.getFrom().getId() != user.getId()) {
+                fromProfile = uProfileService.findProfileByUserId(b.getFrom().getId());
+            }
+
+            if (fromProfile != null) {
                 boolean amountIn = false;
                 if (b.getFrom().getId() != user.getId()) {
                     amountIn = true;
@@ -133,7 +138,7 @@ public class BizumController {
 
                 bizumResponse.add(new BizumResponse(
                         b.getDate(),
-                        getFormattedName(toProfile.getName()),
+                        getFormattedName(fromProfile.getName()),
                         b.getAmount(),
                         b.getDescription(),
                         amountIn

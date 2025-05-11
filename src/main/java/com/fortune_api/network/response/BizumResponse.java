@@ -13,7 +13,7 @@ import java.util.Date;
 @Setter
 public class BizumResponse {
     private Date date;
-    private String to;
+    private String from;
     private double amount;
     private String description;
     private boolean amountIn;
