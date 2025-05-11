@@ -26,4 +26,8 @@ public class BizumService {
     public List<BizumEntity> getBizums(long id) {
         return bizumRepository.getBizums(id);
     }
+
+    public List<BizumEntity> getNonRequestedBizums(long id) {
+        return bizumRepository.getNonRequestedBizums(id);
+    }
 }

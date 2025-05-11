@@ -120,7 +120,7 @@ public class BizumController {
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
         List<BizumResponse> bizumResponse = new ArrayList<>();
-        List<BizumEntity> bizums = bizumService.getBizums(user.getId());
+        List<BizumEntity> bizums = bizumService.getNonRequestedBizums(user.getId());
 
         for (BizumEntity b : bizums) {
             UserProfileEntity fromProfile = null;
