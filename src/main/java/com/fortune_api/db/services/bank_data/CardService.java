@@ -10,7 +10,7 @@ public class CardService {
     @Autowired
     private CardRepository cardRepository;
 
-    public void saveCard(CardEntity card) {
-        cardRepository.save(card);
+    public CardEntity saveCard(CardEntity card) {
+        return cardRepository.save(card);
     }
 }

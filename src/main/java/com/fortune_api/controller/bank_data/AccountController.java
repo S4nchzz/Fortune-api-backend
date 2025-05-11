@@ -124,4 +124,34 @@ public class AccountController {
                         .toString()
         );
     }
+
+    @GetMapping("/addNewCard")
+    public ResponseEntity<?> createCard() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        AccountEntity accountEntity = accountService.findAccountByProprietary(user.getId());
+        if (accountEntity == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        final String cardNumber = generateCardNumber();
+        final LocalDate currentDate = LocalDate.now();
+        final String exp_date = currentDate.getMonthValue() + "/" + (currentDate.getYear() + 5);
+        final int cvv = new Random().nextInt(900) + 100;
+        final int pin = new Random().nextInt(9000) + 1000;
+
+        CardEntity prepaidCard = new CardEntity(UUID.randomUUID().toString(), "PREPAID", cardNumber, exp_date, cvv, pin, 0.0, false, accountEntity);
+        CardEntity cardFromDB = cardService.saveCard(prepaidCard);
+
+        if (cardFromDB != null) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    }
 }
