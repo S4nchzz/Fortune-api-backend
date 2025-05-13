@@ -285,12 +285,12 @@ public class BizumController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        AccountEntity accountToSend = accountService.findAccountByProprietary(userToSend.getId());
+        AccountEntity accountToSend = accountService.findAccountByProprietary(user.getId());
         if (accountToSend == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        BizumEntity b = bizumService.saveOperation(user, userToSend, description, amount, true);
+        BizumEntity b = bizumService.saveOperation(userToSend, user, description, amount, true);
 
         if (b != null) {
             return ResponseEntity.status(HttpStatus.OK).build();

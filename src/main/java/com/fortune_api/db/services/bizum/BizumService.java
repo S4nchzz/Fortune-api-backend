@@ -13,10 +13,10 @@ public class BizumService {
     @Autowired
     private BizumRepository bizumRepository;
 
-    public BizumEntity saveOperation(UserEntity user, UserEntity userToSend, String description, double amount, boolean isRequesting) {
+    public BizumEntity saveOperation(UserEntity userToSend, UserEntity user, String description, double amount, boolean isRequesting) {
         return bizumRepository.save(new BizumEntity(
-                user,
                 userToSend,
+                user,
                 description,
                 amount,
                 isRequesting

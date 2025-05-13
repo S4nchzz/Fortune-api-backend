@@ -13,6 +13,6 @@ public interface BizumRepository extends JpaRepository<BizumEntity, Integer> {
     @Query("SELECT b from f_bizum b WHERE (b.from.id = ?1 OR b.to.id = ?1) AND b.isRequesting = false")
     List<BizumEntity> getNonRequestedBizums(long id);
 
-    @Query("SELECT b from f_bizum b WHERE b.to.id = ?1 AND b.isRequesting = true")
+    @Query("SELECT b from f_bizum b WHERE b.from.id = ?1 AND b.isRequesting = true")
     List<BizumEntity> getRequestedBizums(long id);
 }
