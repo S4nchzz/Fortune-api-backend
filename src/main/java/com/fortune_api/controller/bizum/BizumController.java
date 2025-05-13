@@ -150,6 +150,42 @@ public class BizumController {
         return ResponseEntity.ok(bizumResponse);
     }
 
+    @PostMapping("/getRequestedBizums")
+    public ResponseEntity<?> getRequestedBizums() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        List<BizumResponse> bizumResponse = new ArrayList<>();
+        List<BizumEntity> bizums = bizumService.getRequestedBizums(user.getId());
+
+        for (BizumEntity b : bizums) {
+            UserProfileEntity fromProfile = null;
+
+            if (b.getTo().getId() != user.getId() && b.getFrom().getId() == user.getId()) {
+                fromProfile = uProfileService.findProfileByUserId(b.getTo().getId());
+            } else if (b.getTo().getId() == user.getId() && b.getFrom().getId() != user.getId()) {
+                fromProfile = uProfileService.findProfileByUserId(b.getFrom().getId());
+            }
+
+            if (fromProfile != null) {
+                boolean amountIn = false;
+                if (b.getFrom().getId() != user.getId()) {
+                    amountIn = true;
+                }
+
+                bizumResponse.add(new BizumResponse(
+                        b.getDate(),
+                        getFormattedName(fromProfile.getName()),
+                        b.getAmount(),
+                        b.getDescription(),
+                        amountIn
+                ));
+            }
+        }
+
+        return ResponseEntity.ok(bizumResponse);
+    }
+
     @PostMapping("/requestBizum")
     public ResponseEntity<?> requestBizum(@RequestBody String body) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
