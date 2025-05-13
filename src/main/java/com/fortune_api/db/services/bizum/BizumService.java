@@ -34,4 +34,16 @@ public class BizumService {
     public List<BizumEntity> getRequestedBizums(long id) {
         return bizumRepository.getRequestedBizums(id);
     }
+
+    public void denyBizum(int bizumID) {
+        bizumRepository.deleteById(bizumID);
+    }
+
+    public BizumEntity findBizumById(int bizumID) {
+        return bizumRepository.findById(bizumID).orElse(null);
+    }
+
+    public void saveBizum(BizumEntity bizum) {
+        bizumRepository.save(bizum);
+    }
 }

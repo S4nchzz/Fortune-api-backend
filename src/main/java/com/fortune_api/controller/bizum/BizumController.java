@@ -138,6 +138,7 @@ public class BizumController {
                 }
 
                 bizumResponse.add(new BizumResponse(
+                        b.getId(),
                         b.getDate(),
                         getFormattedName(fromProfile.getName()),
                         b.getAmount(),
@@ -174,8 +175,9 @@ public class BizumController {
                 }
 
                 bizumResponse.add(new BizumResponse(
+                        b.getId(),
                         b.getDate(),
-                        getFormattedName(fromProfile.getName()),
+                        fromProfile.getName(),
                         b.getAmount(),
                         b.getDescription(),
                         amountIn
@@ -184,6 +186,73 @@ public class BizumController {
         }
 
         return ResponseEntity.ok(bizumResponse);
+    }
+
+    @PostMapping("/denyBizumRequest")
+    public ResponseEntity<?> denyBizumRequest(@RequestBody() String body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        JSONObject denyProps = new JSONObject(body);
+        final int bizumID = denyProps.getInt("bizumID");
+
+        if (bizumService.findBizumById(bizumID) != null) {
+            bizumService.denyBizum(bizumID);
+
+            if (bizumService.findBizumById(bizumID) == null) {
+                return ResponseEntity.status(200).build();
+            }
+        }
+
+        return ResponseEntity.status(409).build();
+    }
+
+    @PostMapping("/acceptBizumRequest")
+    public ResponseEntity<?> acceptBizumRequest(@RequestBody() String body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        JSONObject acceptProps = new JSONObject(body);
+        final int bizumID = acceptProps.getInt("bizumID");
+
+        BizumEntity bizum = bizumService.findBizumById(bizumID);
+        if (bizum == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        final UserEntity from = bizumService.findBizumById(bizumID).getFrom();
+        final UserEntity to = bizumService.findBizumById(bizumID).getTo();
+
+        if (from == null || to == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        final double bizumAmount = bizum.getAmount();
+        final AccountEntity accountFrom = accountService.findAccountByProprietary(from.getId());
+        final AccountEntity accountTo = accountService.findAccountByProprietary(to.getId());
+
+        if (accountFrom == null || accountTo == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        for (CardEntity c : accountFrom.getCards()) {
+            if (c.getCardType().equalsIgnoreCase("MAIN")) {
+                c.setBalance(c.getBalance() - bizumAmount);
+            }
+        }
+
+        for (CardEntity c : accountTo.getCards()) {
+            if (c.getCardType().equalsIgnoreCase("MAIN")) {
+                c.setBalance(c.getBalance() + bizumAmount);
+            }
+        }
+
+        bizum.setRequesting(false);
+        bizumService.saveBizum(bizum);
+        accountService.saveAccount(accountFrom);
+        accountService.saveAccount(accountTo);
+
+        return ResponseEntity.status(200).build();
     }
 
     @PostMapping("/requestBizum")
