@@ -3,6 +3,7 @@ package com.fortune_api.controller.bank_data;
 import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.entities.bank_data.AccountEntity;
 import com.fortune_api.db.entities.bank_data.CardEntity;
+import com.fortune_api.db.entities.bank_data.MovementCardEntity;
 import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
@@ -16,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -181,5 +184,27 @@ public class AccountController {
                         .put("accountBalance", amount)
                         .toString()
         );
+    }
+
+    @GetMapping("/getAccountMovements")
+    public ResponseEntity<?> getAccountMovement() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        AccountEntity accountEntity = accountService.findAccountByProprietary(user.getId());
+        if (accountEntity == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        List<MovementCardEntity> movements = new ArrayList<>();
+        for (CardEntity c : accountEntity.getCards()) {
+            movements.addAll(c.getMovements());
+        }
+
+        return ResponseEntity.ok(movements);
     }
 }
