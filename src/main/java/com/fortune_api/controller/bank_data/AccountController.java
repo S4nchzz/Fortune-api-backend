@@ -154,4 +154,32 @@ public class AccountController {
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     }
+
+    @GetMapping("/getAccountData")
+    public ResponseEntity<?> getAccountData() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        AccountEntity accountEntity = accountService.findAccountByProprietary(user.getId());
+        if (accountEntity == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        double amount = 0.0;
+        for (CardEntity c : accountEntity.getCards()) {
+            amount += c.getBalance();
+        }
+
+
+        return ResponseEntity.ok(
+                new JSONObject()
+                        .put("accountID", accountEntity.getAccount_id())
+                        .put("accountBalance", amount)
+                        .toString()
+        );
+    }
 }
