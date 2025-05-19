@@ -193,6 +193,54 @@ public class CardController {
         return ResponseEntity.status(409).build();
     }
 
+    @PostMapping("/transferBalance")
+    public ResponseEntity<?> transferBalance(@RequestBody String transferBody) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        AccountEntity acc = accountService.findAccountByProprietary(user.getId());
+
+        if (acc == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        JSONObject transferJson = new JSONObject(transferBody);
+
+        final String from = transferJson.getString("fromUUID");
+        final String to = transferJson.getString("toUUID");
+        final Double balance = transferJson.getDouble("balance");
+
+        CardEntity cardFromFind = null;
+        CardEntity cardToFind = null;
+
+        for (CardEntity c : acc.getCards()) {
+            if (c.getCard_uuid().equals(from)) {
+                cardFromFind = c;
+            }
+
+            if (c.getCard_uuid().equals(to)) {
+                cardToFind = c;
+            }
+        }
+
+        if (cardFromFind != null && cardToFind != null) {
+            cardFromFind.setBalance(cardFromFind.getBalance() - balance);
+            cardToFind.setBalance(cardToFind.getBalance() + balance);
+
+            cardService.saveCard(cardFromFind);
+            cardService.saveCard(cardToFind);
+
+
+            return ResponseEntity.status(200).build();
+        }
+
+        return ResponseEntity.status(409).build();
+    }
+
     @PostMapping("/addAccountBalance")
     public ResponseEntity<?> addAccountBalance(@RequestBody() String accNewBalance) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
