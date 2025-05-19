@@ -103,4 +103,23 @@ public class AuthController {
                         .toString()
         );
     }
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody() String changePassword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        JSONObject json = new JSONObject(changePassword);
+        final String plainPassword = json.getString("password");
+
+        final String passwordHashed = BCrypt.hashpw(plainPassword, user.getSalt());
+        user.setPassword(passwordHashed);
+        userService.save(user);
+
+        return ResponseEntity.status(200).build();
+    }
 }
