@@ -167,6 +167,32 @@ public class CardController {
         }
     }
 
+    @PostMapping("/findCardByUUID")
+    public ResponseEntity<?> findCardUUID(@RequestBody String cardUUID) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        AccountEntity acc = accountService.findAccountByProprietary(user.getId());
+
+        if (acc == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        JSONObject json = new JSONObject(cardUUID);
+
+        for (CardEntity c : acc.getCards()) {
+            if (c.getCard_uuid().equalsIgnoreCase(json.getString("card_uuid"))) {
+                return ResponseEntity.ok(c);
+            }
+        }
+
+        return ResponseEntity.status(409).build();
+    }
+
     @PostMapping("/addAccountBalance")
     public ResponseEntity<?> addAccountBalance(@RequestBody() String accNewBalance) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
