@@ -122,4 +122,22 @@ public class AuthController {
 
         return ResponseEntity.status(200).build();
     }
+
+    @PostMapping("/changeDigitalSign")
+    public ResponseEntity<?> changeDigitalSign(@RequestBody() String changeDigitalSign) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        JSONObject json = new JSONObject(changeDigitalSign);
+        final int plainDigitalSign = json.getInt("newDigitalSign");
+
+        user.setDigital_sign(plainDigitalSign);
+        this.userService.save(user);
+
+        return ResponseEntity.status(200).build();
+    }
 }

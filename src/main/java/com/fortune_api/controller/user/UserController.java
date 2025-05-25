@@ -9,6 +9,7 @@ import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
 import com.fortune_api.security.jwt.JwtUtils;
+import org.apache.coyote.Response;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,5 +65,30 @@ public class UserController {
 
         UserEntity userEntity = userService.findUserById(user.getId());
         return userProfileService.findProfileByUserId(userEntity.getId());
+    }
+
+    @GetMapping("/getUpdateProfile")
+    public ResponseEntity<?> getUpdateProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        UserProfileEntity uProfile = userProfileService.findById(user.getId());
+
+        if (uProfile == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        return ResponseEntity.ok(new JSONObject()
+                .put("name", uProfile.getName())
+                .put("address", uProfile.getAddress())
+                .put("identity_document", user.getIdentity_document())
+                .put("email", user.getEmail())
+                .put("phone", uProfile.getPhone())
+                .toString()
+        );
     }
 }
