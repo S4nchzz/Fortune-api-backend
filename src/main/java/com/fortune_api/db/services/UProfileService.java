@@ -33,4 +33,8 @@ public class UProfileService {
     public UserProfileEntity findByPhone(String phone) {
         return userProfileRepository.findByPhone(phone);
     }
+
+    public UserProfileEntity save(UserProfileEntity userProfileEntity) {
+        return userProfileRepository.save(userProfileEntity);
+    }
 }

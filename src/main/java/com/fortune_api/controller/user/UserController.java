@@ -91,4 +91,44 @@ public class UserController {
                 .toString()
         );
     }
+
+    @PostMapping("/updateProfile")
+    public ResponseEntity<?> updateProfile(@RequestBody String updateJSONData) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        UserProfileEntity uProfile = userProfileService.findById(user.getId());
+        if (uProfile == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        JSONObject decoded = new JSONObject(updateJSONData);
+        final String name = decoded.getString("name");
+        final String address = decoded.getString("address");
+        final String identityDocument = decoded.getString("identityDocument");
+        final String email = decoded.getString("email");
+        final String phone = decoded.getString("phone");
+
+        user.setEmail(email);
+        user.setIdentity_document(identityDocument);
+
+        uProfile.setPhone(phone);
+        uProfile.setAddress(address);
+        uProfile.setName(name);
+
+        uProfile.setUser(user);
+
+        UserProfileEntity profileUpdated = userProfileService.save(uProfile);
+        UserEntity userUpdated = userService.save(user);
+
+        if (profileUpdated == null || userUpdated == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        return ResponseEntity.status(200).build();
+    }
 }
