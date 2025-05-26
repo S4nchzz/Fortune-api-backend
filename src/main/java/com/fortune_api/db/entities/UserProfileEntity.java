@@ -40,16 +40,17 @@ public class UserProfileEntity {
     @JsonProperty("phone")
     private String phone;
 
-    @Column(name = "pfp")
+    @Column(name = "pfp", columnDefinition = "LONGTEXT")
     @JsonProperty("pfp")
-    private byte [] pfp;
+    private String pfp;
 
-    public UserProfileEntity(UserEntity user, String name, String address, String phone, Boolean online) {
+    public UserProfileEntity(UserEntity user, String name, String address, String phone, String pfp, Boolean online) {
         this.user = user;
         this.name = name;
         this.address = address;
         this.phone = phone;
         this.online = online;
+        this.pfp = pfp;
     }
 
     @JsonProperty("user_id")

@@ -71,6 +71,7 @@ public class AuthController {
         String name = registerRequestJSON.getString("name");
         String address = registerRequestJSON.getString("address");
         String phone = registerRequestJSON.getString("phone");
+        String pfp = registerRequestJSON.getString("base64Image");
 
         final String salt = BCrypt.gensalt();
         final String passwordHashed = BCrypt.hashpw(password, salt);
@@ -80,7 +81,7 @@ public class AuthController {
         }
 
         UserEntity userEntity = userService.register(identityDocument, email, salt, passwordHashed);
-        UserProfileEntity profile = uProfileService.createUserProfile(userEntity.getId(), name, address, phone, false);
+        UserProfileEntity profile = uProfileService.createUserProfile(userEntity.getId(), name, address, phone, pfp, false);
 
         if (profile != null) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
