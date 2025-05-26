@@ -88,6 +88,7 @@ public class UserController {
                 .put("identity_document", user.getIdentity_document())
                 .put("email", user.getEmail())
                 .put("phone", uProfile.getPhone())
+                .put("pfp", uProfile.getPfp())
                 .toString()
         );
     }
