@@ -67,6 +67,37 @@ public class UserController {
         return userProfileService.findProfileByUserId(userEntity.getId());
     }
 
+    @PostMapping("/getProfileByUserID")
+    public ResponseEntity<?> getProfileByUserID(@RequestBody() String plain_body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        try {
+            JSONObject body = new JSONObject(plain_body);
+            final long userID = body.getLong("userID");
+
+            UserEntity userEntity = userService.findUserById(userID);
+
+            if (userEntity == null) {
+                return ResponseEntity.status(409).build();
+            }
+
+            final UserProfileEntity profile = userProfileService.findProfileByUserId(userEntity.getId());
+            if (profile == null) {
+                return ResponseEntity.status(409).build();
+
+            }
+
+            return ResponseEntity.ok(profile);
+        } catch (Exception e) {
+            return ResponseEntity.status(409).build();
+        }
+    }
+
     @GetMapping("/getUpdateProfile")
     public ResponseEntity<?> getUpdateProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
