@@ -46,4 +46,8 @@ public class BizumService {
     public void saveBizum(BizumEntity bizum) {
         bizumRepository.save(bizum);
     }
+
+    public List<BizumEntity> getMoreThan3Bizums(long user_id) {
+        return bizumRepository.getMoreThan3Bizums(user_id);
+    }
 }

@@ -4,9 +4,13 @@ import com.fortune_api.db.entities.UserEntity;
 import com.fortune_api.db.entities.bank_data.AccountEntity;
 import com.fortune_api.db.entities.bank_data.CardEntity;
 import com.fortune_api.db.entities.bank_data.MovementCardEntity;
+import com.fortune_api.db.entities.bizum.BizumEntity;
+import com.fortune_api.db.services.UProfileService;
 import com.fortune_api.db.services.UserService;
 import com.fortune_api.db.services.bank_data.AccountService;
 import com.fortune_api.db.services.bank_data.CardService;
+import com.fortune_api.db.services.bizum.BizumService;
+import com.fortune_api.network.response.FastContactResponse;
 import org.apache.coyote.Response;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/b_operations/account")
@@ -33,6 +34,12 @@ public class AccountController {
 
     @Autowired
     private CardService cardService;
+
+    @Autowired
+    private BizumService bizumService;
+
+    @Autowired
+    private UProfileService uProfileService;
 
     @PostMapping("/createAccount")
     public ResponseEntity<?> createAccount() {
@@ -206,5 +213,46 @@ public class AccountController {
         }
 
         return ResponseEntity.ok(movements);
+    }
+
+    @GetMapping("/getFastContacts")
+    public ResponseEntity<?> getFastContacts() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        AccountEntity accountEntity = accountService.findAccountByProprietary(user.getId());
+        if (accountEntity == null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
+
+        final List<FastContactResponse> fastContactResponseList = new ArrayList<>();
+
+        for (BizumEntity b : this.bizumService.getMoreThan3Bizums(user.getId())) {
+            final String name = this.uProfileService.findProfileByUserId(b.getTo().getId()).getName();
+            String formattedName = name;
+
+            if (name.split(" ").length > 1) {
+                formattedName = name.split(" ")[0] + " " + name.split(" ")[1].charAt(0) + ".";
+            }
+
+            fastContactResponseList.add(new FastContactResponse(
+                this.uProfileService.findProfileByUserId(b.getTo().getId()).getPfp(),
+                formattedName,
+                b.getTo().getId()
+            ));
+        }
+
+        deleteDupedEntities(fastContactResponseList);
+
+        return ResponseEntity.ok(fastContactResponseList);
+    }
+
+    private void deleteDupedEntities(List<FastContactResponse> list) {
+        Set<Long> seen = new HashSet<>();
+        list.removeIf(item -> !seen.add(item.getTo_id()));
     }
 }
