@@ -132,4 +132,35 @@ public class UserController {
 
         return ResponseEntity.status(200).build();
     }
+
+    @PostMapping("/getUserPhone")
+    public ResponseEntity<?> getUserPhone(@RequestBody() String plain_body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user == null) {
+            return ResponseEntity.status(409).build();
+        }
+
+        JSONObject body = new JSONObject(plain_body);
+
+        try {
+            final long userID = body.getLong("userID");
+            if (userService.findUserById(userID) == null) {
+                return ResponseEntity.status(409).build();
+            }
+
+            final UserProfileEntity profile = userProfileService.findProfileByUserId(userID);
+            if (profile == null) {
+                return ResponseEntity.status(409).build();
+            }
+
+            return ResponseEntity.ok(new JSONObject()
+                    .put("phone", profile.getPhone())
+                    .toString());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(409).build();
+        }
+    }
 }
