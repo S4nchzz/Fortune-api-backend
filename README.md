@@ -6,8 +6,7 @@
     <img alt="Fortune" title="Fortune" src="https://i.imgur.com/GizLdUN.png" width="200">
   </a>
 
-<p>Api used on Fortune-APP</p>
-</p>
+<p align="center">Api used on Fortune-APP</p>
 <p align="center">
   <img alt="Download on GitHub" title="GitHub" src="https://i.imgur.com/bVQ9UBG.png" width="200">
 </p>
